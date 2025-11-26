@@ -44,5 +44,12 @@
 		"crons": [
 			"* * * * *"
 		]
-	}
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "my-shop-db",
+			"database_id": "16a0ef05-37f1-4659-9856-bd970d787f7c"
+		}
+	]
 }
