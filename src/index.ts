@@ -8,7 +8,7 @@ type Bindings = {
 
 const app = new Hono<{ Bindings: Bindings }>()
 
-// 啟用 CORS，這樣你的前端 (React) 才能呼叫這個後端
+// 啟用 CORS
 app.use('/*', cors())
 
 app.get('/', (c) => {
@@ -198,8 +198,6 @@ app.post('/api/sales/refund/:id', async (c) => {
 	return c.json({ success: true, message: '退銷成功，庫存已回補' })
 })
 
-
-
 // 1. 員工績效表 
 app.get('/api/stats/employee-sales', async (c) => {
 	const sql = `
@@ -237,15 +235,16 @@ app.get('/api/stats/product-sales', async (c) => {
 	return c.json(result.results)
 })
 
-// 3. 必推熱銷榜 Top 3 (功能 4-6)
+// 3. 必推銷品 Top 3 
 app.get('/api/stats/top-products', async (c) => {
 	const sql = `
-    SELECT p.name, SUM(s.quantity) as total_sold
-    FROM sales s
-    JOIN products p ON s.product_id = p.id
-    WHERE s.status = 'valid'
-    GROUP BY p.name
-    ORDER BY total_sold DESC
+    SELECT 
+      p.name, 
+      COALESCE(SUM(s.quantity), 0) as total_sold
+    FROM products p
+    LEFT JOIN sales s ON p.id = s.product_id AND s.status = 'valid'
+    GROUP BY p.id
+    ORDER BY total_sold ASC
     LIMIT 3
   `
 	const result = await c.env.DB.prepare(sql).all()
